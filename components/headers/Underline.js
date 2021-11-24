@@ -14,7 +14,7 @@ const Header = ({dark}) => {
               </h2>
             </a>
           </Link>
-          <ul className="block font-medium text-base lg:text-xl lg:px-12 tracking-wide">
+          <ul className="block font-medium text-base lg:text-xl tracking-wide">
             <li className="inline-block -mb-1 mx-2 h-8">
               <DarkModeToggle />
             </li>
