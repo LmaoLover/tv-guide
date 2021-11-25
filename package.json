@@ -9,17 +9,17 @@
     "lint": "next lint"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@headlessui/react": "^1.4.1",
+    "@babel/core": "^7.16.0",
+    "@headlessui/react": "^1.4.2",
     "autoprefixer": "^10.4.0",
     "eslint": "7.32.0",
-    "eslint-config-next": "12.0.1",
-    "next": "12.0.1",
-    "postcss": "^8.3.11",
+    "eslint-config-next": "12.0.4",
+    "next": "12.0.4",
+    "postcss": "^8.4.1",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^14.0.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "tailwindcss": "^2.2.17"
+    "tailwindcss": "^2.2.19"
   }
 }

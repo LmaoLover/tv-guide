@@ -7,7 +7,7 @@ export const DarkModeProvider = (props) => {
 
   // loads the initial dark mode state from local storage or system preference
   useEffect(() => {
-    if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+    if (localStorage.theme === 'light') {
       setIsDark(false)
     } else {
       setIsDark(true)
