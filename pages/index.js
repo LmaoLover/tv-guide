@@ -23,7 +23,7 @@ export default function Index({guide}) {
                 let now_far_in = now_prog > 35 && now_prog <= 92
                 let now_finishing = now_prog > 92
 
-                let now_remaining = Math.floor(((now.runtime * 60) - now.progress) / 60)
+                let now_remaining = Math.floor(((now?.runtime * 60) - now?.progress) / 60)
                 return (
                   <div key={channel.channelid} className="flex justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2">
                     <div className="w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
