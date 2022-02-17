@@ -24,11 +24,16 @@ export default function Index({guide}) {
                 let now_finishing = now_prog > 92
 
                 let now_remaining = Math.floor(((now?.runtime * 60) - now?.progress) / 60)
+
+                let thumbnail = decodeURIComponent(channel?.icon?
+                                  .replace(/^image:\/\//i, '')
+                                  .replace(/^https:\/\//i, 'http://')
+                                  .replace(/\/$/i, ''))
                 return (
                   <div key={channel.channelid} className="flex justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2">
                     <div className="w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
                       <div className="">
-                        <img src={decodeURIComponent(channel?.thumbnail.slice(8,-1))} alt="Channel Icon"/>
+                        { thumbnail && <img src={thumbnail} alt="Channel Icon"/>}
                       </div>
                       <div className="font-bold text-center whitespace-nowrap">
                         {channel?.channel}
@@ -40,7 +45,7 @@ export default function Index({guide}) {
                         {now?.title}
                       </div>
                       <div className="dark:text-gray-300 flex-grow">
-                        {now?.plot.slice(0,269)}
+                        {now?.plot.slice(0,500)}
                       </div>
                       <div className="flex my-2">
                         <div className={
@@ -60,7 +65,7 @@ export default function Index({guide}) {
                         {next?.title}
                       </div>
                       <div className="dark:text-gray-300 flex-grow">
-                        {next?.plot.slice(0,269)}
+                        {next?.plot.slice(0,500)}
                       </div>
                       <div className={
                         `text-xl my-2
@@ -77,10 +82,6 @@ export default function Index({guide}) {
           </div>
         </Container>
       </Main>
-      <Row className="">
-        <Container>
-        </Container>
-      </Row>
     </Layout>
   )
 }
