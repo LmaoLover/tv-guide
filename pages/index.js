@@ -25,10 +25,8 @@ export default function Index({guide}) {
 
                 let now_remaining = Math.floor(((now?.runtime * 60) - now?.progress) / 60)
 
-                let thumbnail = decodeURIComponent(channel?.icon?
-                                  .replace(/^image:\/\//i, '')
-                                  .replace(/^https:\/\//i, 'http://')
-                                  .replace(/\/$/i, ''))
+                let thumbnail = decodeURIComponent(channel?.icon)
+
                 return (
                   <div key={channel.channelid} className="flex justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2">
                     <div className="w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
