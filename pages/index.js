@@ -70,7 +70,7 @@ export default function Index({guide}) {
                          ${now_remaining > 30 && "text-red-800"}
                          ${now_remaining <= 15 && "text-green-500"}`
                       }>
-                        Starting in <span className="font-bold">{now_remaining}</span> minutes
+                        Starting in <span className="font-bold">{now_remaining || ""}</span> minutes
                       </div>
                     </div>
                   </div>
