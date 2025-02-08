@@ -14,7 +14,7 @@ export default function Index({guide}) {
         <Container>
           <div className="px-4 py-6 sm:px-0">
             <div className="">
-              {guide.result.channels.map(channel => {
+              {!guide ? <h1 className='text-2xl semibold'>Guide DED</h1> : guide.result.channels.map(channel => {
                 let now = channel?.broadcastnow
                 let next = channel?.broadcastnext
 
@@ -86,8 +86,13 @@ export default function Index({guide}) {
 
 export async function getServerSideProps() {
   // Call an external API endpoint to get posts
-  const res = await fetch(process.env.API_URL)
-  const guide = await res.json()
+  let guide
+  try {
+    const res = await fetch(process.env.API_URL, { signal: AbortSignal.timeout(2000) })
+    guide = await res.json()
+  } catch (TimeoutError) {
+    guide = null
+  }
 
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
