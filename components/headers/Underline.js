@@ -18,6 +18,11 @@ const Header = ({ dark }) => {
                 Movies
               </h2>
             </Link>
+            <Link href="/daddy">
+              <h2 className="flex flex-row items-center text-xl md:text-2xl pb-0.5 hover:pb-0 hover:border-b-2 dark:hover:border-white hover:border-black font-medium">
+                Daddy
+              </h2>
+            </Link>
           </div>
           <ul className="block font-medium text-base lg:text-xl tracking-wide">
             <li className="inline-block -mb-1 mx-2 h-8">
