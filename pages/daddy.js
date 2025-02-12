@@ -187,13 +187,14 @@ export default function Index({ guide }) {
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps({res}) {
   let guide;
   try {
-    const res = await fetch(process.env.DADDY_API_URL, {
+    const js = await fetch(process.env.DADDY_API_URL, {
       signal: AbortSignal.timeout(4000),
     });
-    guide = await res.json();
+    guide = await js.json();
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60");
   } catch (TimeoutError) {
     guide = null;
   }
@@ -202,6 +203,5 @@ export async function getStaticProps() {
     props: {
       guide,
     },
-    revalidate: 60,
   };
 }
