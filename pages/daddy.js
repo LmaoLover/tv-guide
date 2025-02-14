@@ -41,7 +41,7 @@ const Event = memo(({ event, ukDate }) => {
             {getChannels(event).map((channel) => (
               <a
                 key={`${event.time}-${channel?.channel_id || Math.random()}`}
-                href={`${process.env.NEXT_PUBLIC_DADDY_URL_PATTERN}${channel?.channel_id}.php`}
+                href={`${process.env.NEXT_PUBLIC_DADDY_URL_PATTERN}${channel?.channel_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700"
