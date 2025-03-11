@@ -4,16 +4,57 @@ import { useState, useEffect } from "react";
 import channelIdMap from "../utils/channelIdMap";
 
 export default function Index({ guide }) {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(null);
+  const [channelPrograms, setChannelPrograms] = useState([]);
 
-  // Update current time every minute
+  // Initialize currentTime and process programs on client-side only
   useEffect(() => {
+    // Set initial time
+    setCurrentTime(new Date());
+
+    // Set up interval for time updates
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
 
     return () => clearInterval(timer);
   }, []);
+
+  // Process channel programs whenever currentTime or guide changes
+  useEffect(() => {
+    if (!currentTime || !guide) return;
+
+    const processedChannels = guide.map((channel) => {
+      const { current, next } = getChannelPrograms(channel.next_programs);
+
+      const now_prog = current
+        ? calculateProgress(
+            current["data-listdatetime"],
+            current["data-duration"],
+          )
+        : 0;
+
+      const now_remaining = current
+        ? calculateRemainingMinutes(
+            current["data-listdatetime"],
+            current["data-duration"],
+          )
+        : 0;
+
+      return {
+        ...channel,
+        current,
+        next,
+        now_prog,
+        now_starting: now_prog < 15,
+        now_far_in: now_prog > 35 && now_prog <= 92,
+        now_finishing: now_prog > 92,
+        now_remaining,
+      };
+    });
+
+    setChannelPrograms(processedChannels);
+  }, [currentTime, guide]);
 
   // Helper function to convert UTC to Eastern Time
   const toEasternTime = (dateString) => {
@@ -30,6 +71,8 @@ export default function Index({ guide }) {
 
   // Helper function to calculate progress percentage
   const calculateProgress = (startTimeStr, durationMinutes) => {
+    if (!currentTime) return 0;
+
     const startTime = new Date(startTimeStr);
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
 
@@ -43,6 +86,8 @@ export default function Index({ guide }) {
 
   // Helper function to calculate minutes until start
   const calculateMinutesUntil = (startTimeStr) => {
+    if (!currentTime || !startTimeStr) return 0;
+
     const startTime = new Date(startTimeStr);
     const diffMs = startTime - currentTime;
     return Math.max(0, Math.ceil(diffMs / 60000));
@@ -50,6 +95,8 @@ export default function Index({ guide }) {
 
   // Helper function to calculate remaining minutes
   const calculateRemainingMinutes = (startTimeStr, durationMinutes) => {
+    if (!currentTime) return 0;
+
     const startTime = new Date(startTimeStr);
     const endTime = new Date(
       startTime.getTime() + parseInt(durationMinutes) * 60000,
@@ -60,7 +107,7 @@ export default function Index({ guide }) {
 
   // Find current and next program for a channel
   const getChannelPrograms = (programs) => {
-    if (!programs || programs.length === 0) {
+    if (!programs || programs.length === 0 || !currentTime) {
       return { current: null, next: null };
     }
 
@@ -102,30 +149,11 @@ export default function Index({ guide }) {
           <div className="px-4 py-6 sm:px-0">
             {!guide ? (
               <h1 className="text-2xl semibold">Guide DED</h1>
+            ) : !currentTime ? (
+              <div className="text-center py-4">Loading...</div>
             ) : (
               <div className="">
-                {guide.map((channel, index) => {
-                  const { current, next } = getChannelPrograms(
-                    channel.next_programs,
-                  );
-
-                  const now_prog = current
-                    ? calculateProgress(
-                        current["data-listdatetime"],
-                        current["data-duration"],
-                      )
-                    : 0;
-                  const now_starting = now_prog < 15;
-                  const now_far_in = now_prog > 35 && now_prog <= 92;
-                  const now_finishing = now_prog > 92;
-
-                  const now_remaining = current
-                    ? calculateRemainingMinutes(
-                        current["data-listdatetime"],
-                        current["data-duration"],
-                      )
-                    : 0;
-
+                {channelPrograms.map((channel) => {
                   // Get the channel ID from the mapping
                   const channelId = channelIdMap[channel.slug] || null;
 
@@ -164,53 +192,58 @@ export default function Index({ guide }) {
 
                       <div className="w-full pl-8 flex flex-col">
                         <div className="font-bold text-xl">
-                          {current?.["data-showname"] ||
+                          {channel.current?.["data-showname"] ||
                             "No program currently airing"}
                         </div>
-                        {current?.["data-episodetitle"] && (
+                        {channel.current?.["data-episodetitle"] && (
                           <div className="text-sm italic">
-                            {current["data-episodetitle"]}
+                            {channel.current["data-episodetitle"]}
                           </div>
                         )}
                         <div className="dark:text-gray-300 flex-grow">
-                          {current?.["data-description"]?.slice(0, 500) || ""}
+                          {channel.current?.["data-description"]?.slice(
+                            0,
+                            500,
+                          ) || ""}
                         </div>
                         <div className="flex my-2">
                           <div
                             className={`text-2xl font-bold
-                             ${!now_prog ? "invisible" : ""}
-                             ${now_starting ? "dark:text-green-500" : ""}
-                             ${now_far_in ? "dark:text-red-800" : ""}
-                             ${now_finishing ? "dark:text-red-600" : ""}`}
+                             ${!channel.now_prog ? "invisible" : ""}
+                             ${channel.now_starting ? "dark:text-green-500" : ""}
+                             ${channel.now_far_in ? "dark:text-red-800" : ""}
+                             ${channel.now_finishing ? "dark:text-red-600" : ""}`}
                           >
-                            {Math.floor(now_prog)}% Done
+                            {Math.floor(channel.now_prog)}% Done
                           </div>
                         </div>
                       </div>
 
                       <div
-                        className={`w-full pl-8 flex flex-col ${!next && "invisible"}`}
+                        className={`w-full pl-8 flex flex-col ${!channel.next && "invisible"}`}
                       >
                         <div className="font-bold text-xl">
-                          {next?.["data-showname"] || "No upcoming program"}
+                          {channel.next?.["data-showname"] ||
+                            "No upcoming program"}
                         </div>
-                        {next?.["data-episodetitle"] && (
+                        {channel.next?.["data-episodetitle"] && (
                           <div className="text-sm italic">
-                            {next["data-episodetitle"]}
+                            {channel.next["data-episodetitle"]}
                           </div>
                         )}
                         <div className="dark:text-gray-300 flex-grow">
-                          {next?.["data-description"]?.slice(0, 500) || ""}
+                          {channel.next?.["data-description"]?.slice(0, 500) ||
+                            ""}
                         </div>
                         <div
                           className={`text-xl my-2
-                           ${now_remaining > 30 && "text-red-800"}
-                           ${now_remaining <= 15 && "text-green-500"}`}
+                           ${channel.now_remaining > 30 && "text-red-800"}
+                           ${channel.now_remaining <= 15 && "text-green-500"}`}
                         >
                           Starting in{" "}
                           <span className="font-bold">
                             {calculateMinutesUntil(
-                              next?.["data-listdatetime"],
+                              channel.next?.["data-listdatetime"],
                             ) || ""}
                           </span>{" "}
                           minutes
