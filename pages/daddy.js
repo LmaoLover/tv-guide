@@ -14,6 +14,48 @@ const decodeHtmlEntities = (text) => {
     .replace(/&#39;/g, "'");
 };
 
+const mapCategoryToEmoji = (category) => {
+  const categoryToEmoji = {
+    "TV Shows": "📺",
+    "TV Show": "📺",
+    Soccer: "⚽",
+    Cricket: "🏏",
+    Tennis: "🎾",
+    Motorsport: "🚘",
+    Boxing: "🥊",
+    MMA: "👊🏽",
+    WWE: "🤼‍♂️",
+    "Combat sports": "🥋",
+    Golf: "⛳",
+    Snooker: "🎱",
+    "Alpine Ski": "⛷️",
+    Athletics: "🏃",
+    "Aussie rules": "🏉",
+    Baseball: "⚾",
+    Basketball: "🏀",
+    Biathlon: "🎿",
+    "Cross Country": "🏃‍♂️",
+    Darts: "🎯",
+    Futsal: "⚽",
+    Handball: "🤾‍♂️",
+    "Horse Racing": "🏇",
+    "Ice Hockey": "🏒",
+    Lacrosse: "🥍",
+    "Rugby League": "🏉",
+    "Rugby Union": "🏉",
+    "Ski Jumping": "🎿",
+    Squash: "🏸",
+    Volleyball: "🏐",
+    Netball: "🏐",
+    "Winter Sports": "❄️",
+    "Water Polo": "🤽‍♂️",
+    "PPV Events": "💸",
+    Cycling: "🚲",
+    "Table Tennis": "🏓",
+  };
+  return categoryToEmoji[category] || "";
+};
+
 // Memoized event component for better performance
 const Event = memo(({ event, ukDate }) => {
   const { formattedTime, dayName } = useMemo(() => {
@@ -43,7 +85,10 @@ const Event = memo(({ event, ukDate }) => {
     if (!event?.channels || !Array.isArray(event.channels)) return [];
     return event.channels;
   };
-
+  // Get category emoji if available (for NOW section)
+  const categoryEmoji = event.category
+    ? mapCategoryToEmoji(event.category)
+    : "";
   // Decode event title to fix &amp; issues
   const decodedEventName = decodeHtmlEntities(event?.event || "No event name");
 
@@ -54,7 +99,10 @@ const Event = memo(({ event, ukDate }) => {
           {`${dayName} ${formattedTime}`}
         </div>
         <div className="flex-1">
-          <div className="font-medium text-lg mb-2">{decodedEventName}</div>
+          <div className="font-medium text-lg mb-2">
+            {categoryEmoji && <span className="mr-1">{categoryEmoji}</span>}
+            {decodedEventName}
+          </div>
           <div className="flex flex-wrap gap-2 mt-2">
             {getChannels(event).map((channel) => (
               <a
@@ -135,8 +183,11 @@ export default function Index({ guide }) {
 
     Object.entries(scheduleData).forEach(([ukDate, categories]) => {
       Object.entries(categories).forEach(([category, events]) => {
+        // Clean category name (remove span tag)
+        const cleanCategory = category.replace("</span>", "").trim();
+
         // Decode category names to fix potential HTML entities
-        const decodedCategory = decodeHtmlEntities(category);
+        const decodedCategory = decodeHtmlEntities(cleanCategory);
 
         if (!mergedCategories[decodedCategory]) {
           mergedCategories[decodedCategory] = [];
@@ -289,11 +340,22 @@ export default function Index({ guide }) {
                       // Skip empty categories
                       if (events.length === 0) return null;
 
-                      // Decode category names that might appear in UI
-                      const decodedCategoryName =
+                      // Clean category name (remove span tag) and get emoji
+                      const cleanCategory =
                         category === "NOW"
+                          ? category
+                          : category.replace("</span>", "").trim();
+
+                      const categoryEmoji =
+                        cleanCategory === "NOW"
+                          ? "🔴"
+                          : mapCategoryToEmoji(cleanCategory);
+
+                      // Format category name with emoji
+                      const decodedCategoryName =
+                        cleanCategory === "NOW"
                           ? "🔴 HAPPENING NOW"
-                          : decodeHtmlEntities(category.replace("</span>", ""));
+                          : `${categoryEmoji} ${decodeHtmlEntities(cleanCategory)}`;
 
                       return (
                         <div
