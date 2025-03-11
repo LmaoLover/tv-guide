@@ -13,9 +13,9 @@ const Header = ({ dark }) => {
                 TV-Guide
               </h2>
             </Link>
-            <Link href="/movies">
+            <Link href="/tvpass">
               <h2 className="flex flex-row items-center text-xl md:text-2xl pb-0.5 hover:pb-0 hover:border-b-2 dark:hover:border-white hover:border-black font-medium">
-                Movies
+                TVPass
               </h2>
             </Link>
             <Link href="/daddy">
