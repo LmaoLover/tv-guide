@@ -18,6 +18,8 @@ const mapCategoryToEmoji = (category) => {
   const categoryToEmoji = {
     "TV Shows": "📺",
     "TV Show": "📺",
+    "Tv Shows": "📺",
+    "Tv Show": "📺",
     Soccer: "⚽",
     Cricket: "🏏",
     Tennis: "🎾",
@@ -46,15 +48,21 @@ const mapCategoryToEmoji = (category) => {
     "Rugby Union": "🏉",
     "Ski Jumping": "⛷️",
     Squash: "🏸",
+    Badminton: "🏸",
     Volleyball: "🏐",
     Netball: "🏐",
     "Winter Sports": "❄️",
     "Water Polo": "🤽🏼",
+    "Water polo": "🤽🏼",
     "Waterpolo": "🤽🏼",
     "PPV Events": "💸",
     Cycling: "🚲",
     "Table Tennis": "🏓",
     "Ice Skating": "⛸️",
+    "Gymnastics": "🤸🏽",
+    "Sailing / Boating": "⛵",
+    "Bowling": "🎳",
+    "GAA": "🇮🇪",
   };
   return categoryToEmoji[category] || "";
 };
