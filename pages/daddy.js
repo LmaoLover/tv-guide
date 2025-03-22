@@ -70,6 +70,7 @@ const mapCategoryToEmoji = (category) => {
     Weightlifting: "🏋🏽",
     Wrestling: "🤼🏼",
     "E-Sports": "🎮",
+    ESports: "🎮",
     Equestrian: "🏇",
     Triathlon: "🏃🏻",
   };
