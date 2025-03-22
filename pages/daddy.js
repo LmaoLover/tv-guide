@@ -68,6 +68,10 @@ const mapCategoryToEmoji = (category) => {
     "Am. Football": "🏈",
     "Beach Soccer": "⚽",
     Weightlifting: "🏋🏽",
+    Wrestling: "🤼🏼",
+    "E-Sports": "🎮",
+    Equestrian: "🏇",
+    Triathlon: "🏃🏻",
   };
   return categoryToEmoji[category] || "";
 };
@@ -313,14 +317,6 @@ export default function Index({ guide }) {
     });
   };
 
-  if (!scheduleData) {
-    return (
-      <div className="w-full rounded-lg border shadow-sm p-6 bg-white dark:bg-gray-800">
-        <p className="text-lg font-medium">No schedule data available</p>
-      </div>
-    );
-  }
-
   return (
     <Layout className="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
       <Row>
@@ -332,91 +328,103 @@ export default function Index({ guide }) {
         <Container>
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-4">
-              <div className="w-full">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                  <h2 className="text-2xl font-bold flex items-center">
-                    <span className="mr-2">📺</span> Daddy Links
-                    {currentTime && (
-                      <span className="ml-auto text-sm font-normal">
-                        Current time:{" "}
-                        {currentTime.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                          timeZone: "America/New_York",
-                        })}{" "}
-                        ET
-                      </span>
-                    )}
-                  </h2>
-                </div>
-                <div className="p-6">
-                  <div className="space-y-4">
-                    {Object.entries(mergedData).map(([category, events]) => {
-                      // Skip empty categories
-                      if (events.length === 0) return null;
+              {scheduleData ? (
+                <div className="w-full">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 className="text-2xl font-bold flex items-center">
+                      <span className="mr-2">📺</span> Daddy Links
+                      {currentTime && (
+                        <span className="ml-auto text-sm font-normal">
+                          Current time:{" "}
+                          {currentTime.toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                            timeZone: "America/New_York",
+                          })}{" "}
+                          ET
+                        </span>
+                      )}
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="space-y-4">
+                      {Object.entries(mergedData).map(([category, events]) => {
+                        // Skip empty categories
+                        if (events.length === 0) return null;
 
-                      // Clean category name (remove span tag) and get emoji
-                      const cleanCategory =
-                        category === "NOW"
-                          ? category
-                          : category.replace("</span>", "").trim();
+                        // Clean category name (remove span tag) and get emoji
+                        const cleanCategory =
+                          category === "NOW"
+                            ? category
+                            : category.replace("</span>", "").trim();
 
-                      const categoryEmoji =
-                        cleanCategory === "NOW"
-                          ? "🔴"
-                          : mapCategoryToEmoji(cleanCategory);
+                        const categoryEmoji =
+                          cleanCategory === "NOW"
+                            ? "🔴"
+                            : mapCategoryToEmoji(cleanCategory);
 
-                      // Format category name with emoji
-                      const decodedCategoryName =
-                        cleanCategory === "NOW"
-                          ? "🔴 HAPPENING NOW"
-                          : `${categoryEmoji} ${decodeHtmlEntities(cleanCategory)}`;
+                        // Format category name with emoji
+                        const decodedCategoryName =
+                          cleanCategory === "NOW"
+                            ? "🔴 HAPPENING NOW"
+                            : `${categoryEmoji} ${decodeHtmlEntities(cleanCategory)}`;
 
-                      return (
-                        <div
-                          key={category}
-                          className="rounded-lg overflow-hidden"
-                        >
-                          <button
-                            onClick={() => toggleCategory(category)}
-                            className={`flex items-center w-full text-left text-lg font-semibold p-4 transition-colors ${
-                              category === "NOW"
-                                ? "bg-blue-700 text-white dark:bg-blue-800"
-                                : "bg-gray-100 dark:bg-gray-800"
-                            }`}
+                        //Skip weird tennis cats
+                        if (/Tennis [A-Z]{3} - /.test(cleanCategory))
+                          return null;
+
+                        return (
+                          <div
+                            key={category}
+                            className="rounded-lg overflow-hidden"
                           >
-                            <span className="mr-2">
-                              {expandedCategories.has(category) ? "▼" : "▶"}
-                            </span>
-                            {decodedCategoryName}
-                            <span className="ml-2 text-sm font-normal">
-                              ({events.length} events)
-                            </span>
-                          </button>
-                          {expandedCategories.has(category) && (
-                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                              {events.map((event) => {
-                                return (
-                                  <div
-                                    key={event.uniqueId}
-                                    className="bg-white dark:bg-gray-800"
-                                  >
-                                    <Event
-                                      event={event}
-                                      ukDate={event.ukDate}
-                                    />
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                            <button
+                              onClick={() => toggleCategory(category)}
+                              className={`flex items-center w-full text-left text-lg font-semibold p-4 transition-colors ${
+                                category === "NOW"
+                                  ? "bg-blue-700 text-white dark:bg-blue-800"
+                                  : "bg-gray-100 dark:bg-gray-800"
+                              }`}
+                            >
+                              <span className="mr-2">
+                                {expandedCategories.has(category) ? "▼" : "▶"}
+                              </span>
+                              {decodedCategoryName}
+                              <span className="ml-2 text-sm font-normal">
+                                ({events.length} events)
+                              </span>
+                            </button>
+                            {expandedCategories.has(category) && (
+                              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                {events.map((event) => {
+                                  return (
+                                    <div
+                                      key={event.uniqueId}
+                                      className="bg-white dark:bg-gray-800"
+                                    >
+                                      <Event
+                                        event={event}
+                                        ukDate={event.ukDate}
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="w-full rounded-lg border shadow-sm p-6 bg-white dark:bg-gray-800">
+                  <p className="text-lg font-medium">
+                    No schedule data available
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </Container>
@@ -430,9 +438,12 @@ export async function getServerSideProps({ res }) {
   try {
     const js = await fetch(process.env.DADDY_API_URL, {
       signal: AbortSignal.timeout(4000),
+      headers: {
+        Referer: process.env.DADDY_API_REFERER,
+      },
     });
     guide = await js.json();
-    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60");
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=600");
   } catch (TimeoutError) {
     guide = null;
   }
