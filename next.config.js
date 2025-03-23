@@ -5,5 +5,6 @@ module.exports = {
       fullUrl: true,
     },
   },
+  devIndicators: false,
 }
 

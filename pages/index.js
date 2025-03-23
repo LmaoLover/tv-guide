@@ -50,7 +50,7 @@ export default function Index({ guide }) {
 
                       <div className="w-full pl-8 flex flex-col">
                         <div className="font-bold text-xl">{now?.title}</div>
-                        <div className="dark:text-gray-300 flex-grow">
+                        <div className="dark:text-gray-300 grow">
                           {now?.plot.slice(0, 500)}
                         </div>
                         <div className="flex my-2">
@@ -70,7 +70,7 @@ export default function Index({ guide }) {
                         className={`w-full pl-8 flex flex-col ${!next && "invisible"}`}
                       >
                         <div className="font-bold text-xl">{next?.title}</div>
-                        <div className="dark:text-gray-300 flex-grow">
+                        <div className="dark:text-gray-300 grow">
                           {next?.plot.slice(0, 500)}
                         </div>
                         <div

@@ -420,7 +420,7 @@ export default function Index({ guide }) {
                   </div>
                 </div>
               ) : (
-                <div className="w-full rounded-lg border shadow-sm p-6 bg-white dark:bg-gray-800">
+                <div className="w-full rounded-lg border shadow-xs p-6 bg-white dark:bg-gray-800">
                   <p className="text-lg font-medium">
                     No schedule data available
                   </p>

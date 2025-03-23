@@ -200,7 +200,7 @@ export default function Index({ guide }) {
                             {channel.current["data-episodetitle"]}
                           </div>
                         )}
-                        <div className="dark:text-gray-300 flex-grow">
+                        <div className="dark:text-gray-300 grow">
                           {channel.current?.["data-description"]?.slice(
                             0,
                             500,
@@ -231,7 +231,7 @@ export default function Index({ guide }) {
                             {channel.next["data-episodetitle"]}
                           </div>
                         )}
-                        <div className="dark:text-gray-300 flex-grow">
+                        <div className="dark:text-gray-300 grow">
                           {channel.next?.["data-description"]?.slice(0, 500) ||
                             ""}
                         </div>
