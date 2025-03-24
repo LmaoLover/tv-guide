@@ -440,6 +440,9 @@ let _daddyCache = {
   timestamp: 0,
 };
 
+// Promise to track ongoing fetch
+let _currentFetchPromise = null;
+
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15",
@@ -449,7 +452,7 @@ const USER_AGENTS = [
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
 ];
 
-const CACHE_EXPIRY = 3600 * 1000; // 1 hour in milliseconds
+const CACHE_EXPIRY = 6 * 3600 * 1000; // 6 hour in milliseconds
 
 export async function getServerSideProps({ res }) {
   let guide;
@@ -461,34 +464,48 @@ export async function getServerSideProps({ res }) {
     if (cacheValid) {
       guide = _daddyCache.data;
     } else {
-      const randomUserAgent =
-        USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
+      // If a fetch is already in progress, wait for it
+      if (_currentFetchPromise) {
+        guide = await _currentFetchPromise;
+      } else {
+        const randomUserAgent =
+          USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 
-      const js = await fetch(process.env.DADDY_API_URL, {
-        signal: AbortSignal.timeout(4000),
-        headers: {
-          Accept: "*/*",
-          "Accept-Language": "en-US,en;q=0.9",
-          "Accept-Encoding": "gzip, deflate",
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache",
-          "Priority": "u=1,i",
-          Referer: process.env.DADDY_API_REFERER,
-          "Sec-Fetch-Dest": "empty",
-          "Sec-Fetch-Mode": "cors",
-          "Sec-Fetch-Site": "same-origin",
-          "Sec-Gpc": "1",
-          "User-Agent": randomUserAgent,
-        },
-      });
+        // Create and store the fetch promise
+        _currentFetchPromise = fetch(process.env.DADDY_API_URL, {
+          signal: AbortSignal.timeout(4000),
+          headers: {
+            Accept: "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate",
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+            Priority: "u=1,i",
+            Referer: process.env.DADDY_API_REFERER,
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Gpc": "1",
+            "User-Agent": randomUserAgent,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Update cache
+            _daddyCache = {
+              data: data,
+              timestamp: Date.now(),
+            };
+            return data;
+          })
+          .finally(() => {
+            // Clear the promise reference when done
+            _currentFetchPromise = null;
+          });
 
-      guide = await js.json();
-
-      // Update cache
-      _daddyCache = {
-        data: guide,
-        timestamp: currentTime,
-      };
+        // Wait for the fetch to complete
+        guide = await _currentFetchPromise;
+      }
     }
 
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=600");
