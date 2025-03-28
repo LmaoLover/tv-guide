@@ -35,10 +35,10 @@ export default function Index({ guide }) {
                   return (
                     <div
                       key={channel.channelid}
-                      className="flex justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2"
+                      className="flex flex-col md:flex-row justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2"
                     >
                       <div className="w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
-                        <div className="">
+                        <div className="max-w-24">
                           {thumbnail && (
                             <img src={thumbnail} alt="Channel Icon" />
                           )}

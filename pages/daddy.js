@@ -115,7 +115,7 @@ const Event = memo(({ event, ukDate }) => {
 
   return (
     <div className="p-4 border-b last:border-b-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col md:flex-row items-start gap-4">
         <div className="w-40 font-medium text-gray-700 dark:text-gray-300">
           {`${dayName} ${formattedTime}`}
         </div>
@@ -327,7 +327,7 @@ export default function Index({ guide }) {
       </Row>
       <Main>
         <Container>
-          <div className="px-4 py-6 sm:px-0">
+          <div className="py-6">
             <div className="mb-4">
               {scheduleData ? (
                 <div className="w-full">

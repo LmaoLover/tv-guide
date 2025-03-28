@@ -160,9 +160,9 @@ export default function Index({ guide }) {
                   return (
                     <div
                       key={channel.slug}
-                      className="flex justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2"
+                      className="flex flex-col md:flex-row justify-between odd:bg-gray-200 dark:odd:bg-gray-800 py-2"
                     >
-                      <div className="w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
+                      <div className="md:w-1/4 px-4 overflow-hidden flex flex-col justify-center mb-2">
                         <div className="font-bold text-center whitespace-nowrap">
                           {channel.title}
                         </div>
