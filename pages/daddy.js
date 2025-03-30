@@ -73,6 +73,7 @@ const mapCategoryToEmoji = (category) => {
     ESports: "🎮",
     Equestrian: "🏇",
     Triathlon: "🏃🏻",
+    Floorball: "🏑",
   };
   return categoryToEmoji[category] || "";
 };
