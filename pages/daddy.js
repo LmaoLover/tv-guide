@@ -190,11 +190,48 @@ export default function Index({ guide }) {
   // Parse date from format like "Tuesday 11th March 2025 - Schedule Time UK GMT"
   const parseFullUkDate = (dateStr) => {
     // Extract the date components
-    const match = dateStr.match(/(\w+)\s+(\d+)[a-z]{2}\s+(\w+)\s+(\d{4})/);
-    if (!match) return null;
+    let day, month, year, weekdayName, dayOfMonth;
+    // Standard usual date format
+    let match = dateStr.match(/(\w+)\s+(\d+)[a-z]{2}\s+(\w+)\s+(\d{4})/);
+    if (!match) {
+      //annoying outlier format
+      match = dateStr.match(/(\w+)\s+(\d+)[a-z]{2}\s+(\d{4})/);
+      if (!match) return null;
 
-    const [, , day, month, year] = match;
-    return new Date(`${month} ${day} ${year} 00:00 GMT`);
+      [, weekdayName, dayOfMonth, year] = match;
+      const targetWeekday = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ].indexOf(weekdayName);
+      const targetDay = parseInt(dayOfMonth, 10);
+
+      // Get the current date in UTC
+      let date = new Date();
+      date.setUTCHours(0, 0, 0, 0);
+
+      // Check yesterday, today, and next two days
+      for (let offset = -1; offset <= 2; offset++) {
+        let testDate = new Date(date);
+        testDate.setUTCDate(testDate.getUTCDate() + offset);
+
+        if (
+          testDate.getUTCDay() === targetWeekday &&
+          testDate.getUTCDate() === targetDay
+        ) {
+          return testDate;
+        }
+      }
+
+      return null;
+    } else {
+      [, , day, month, year] = match;
+      return new Date(`${month} ${day} ${year} 00:00 GMT`);
+    }
   };
 
   const mergedData = useMemo(() => {
