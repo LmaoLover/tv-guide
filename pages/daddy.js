@@ -74,6 +74,7 @@ const mapCategoryToEmoji = (category) => {
     Equestrian: "🏇",
     Triathlon: "🏃🏻",
     Floorball: "🏑",
+    "Water Sports": "💦",
   };
   return categoryToEmoji[category] || "";
 };
