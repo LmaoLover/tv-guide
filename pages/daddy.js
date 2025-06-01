@@ -273,6 +273,15 @@ export default function Index({ guide }) {
             return;
           }
 
+          // Skip bad Tennis streams
+          if (
+            /WTA/.test(event.event) ||
+            /ATP/.test(event.event) ||
+            /DOUBLES/.test(event.event)
+          )
+            return null;
+
+
           const timeStr = event.time;
           const [hour, minute] = timeStr.split(":").map(Number);
 
