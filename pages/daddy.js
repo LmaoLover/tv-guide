@@ -75,6 +75,7 @@ const mapCategoryToEmoji = (category) => {
     Triathlon: "🏃🏻",
     Floorball: "🏑",
     "Water Sports": "💦",
+    Climbing: "🧗",
   };
   return categoryToEmoji[category] || "";
 };
@@ -411,7 +412,12 @@ export default function Index({ guide }) {
                             : `${categoryEmoji} ${decodeHtmlEntities(cleanCategory)}`;
 
                         //Skip weird tennis cats
-                        if (/Tennis [A-Z]{3}/.test(cleanCategory))
+                        if (
+                          /Tennis [A-Z]{3}/.test(cleanCategory) ||
+                          /WTA/.test(cleanCategory) ||
+                          /ATP/.test(cleanCategory) ||
+                          /DOUBLES/.test(cleanCategory)
+                        )
                           return null;
 
                         return (
