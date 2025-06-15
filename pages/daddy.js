@@ -76,6 +76,8 @@ const mapCategoryToEmoji = (category) => {
     Floorball: "🏑",
     "Water Sports": "💦",
     Climbing: "🧗",
+    "Field Hockey": "🏑",
+    Fencing: "🤺",
   };
   return categoryToEmoji[category] || "";
 };
