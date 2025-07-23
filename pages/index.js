@@ -105,6 +105,9 @@ export async function getServerSideProps() {
       signal: AbortSignal.timeout(2000),
     });
     guide = await res.json();
+    if (guide.error) {
+      guide = null;
+    }
   } catch (TimeoutError) {
     guide = null;
   }
