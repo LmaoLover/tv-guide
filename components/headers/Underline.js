@@ -8,11 +8,6 @@ const Header = ({ dark }) => {
       <nav className="border-b border-gray-200 dark:border-gray-500">
         <div className="flex flex-row justify-between items-end mx-4 lg:mx-8 -mb-px">
           <div className="flex flex-row space-x-16">
-            <Link href="/">
-              <h2 className="flex flex-row items-center text-xl md:text-2xl pb-0.5 hover:pb-0 hover:border-b-2 dark:hover:border-white hover:border-black font-bold">
-                TV-Guide
-              </h2>
-            </Link>
             <Link href="/tvpass">
               <h2 className="flex flex-row items-center text-xl md:text-2xl pb-0.5 hover:pb-0 hover:border-b-2 dark:hover:border-white hover:border-black font-medium">
                 TVPass

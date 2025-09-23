@@ -98,6 +98,15 @@ export default function Index({ guide }) {
 }
 
 export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: "/tvpass",
+      permanent: true,
+    },
+  };
+}
+
+export async function getServerSidePropsOld() {
   // Call an external API endpoint to get posts
   let guide;
   try {
