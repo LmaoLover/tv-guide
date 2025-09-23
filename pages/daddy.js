@@ -78,6 +78,11 @@ const mapCategoryToEmoji = (category) => {
     Climbing: "🧗",
     "Field Hockey": "🏑",
     Fencing: "🤺",
+    "England EFL Trophy/England League Cup/Scottish Premiership": "⚽",
+    "All Soccer Events": "⚽",
+    "NHL": "🏒",
+    "WNBA": "🏀",
+    "Baseball (MLB)": "⚾",
   };
   return categoryToEmoji[category] || "";
 };
