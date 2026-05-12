@@ -178,14 +178,14 @@ export default function Index({ guide }) {
                             </a>
                           )}
                           {process.env.NEXT_PUBLIC_LMAO && channelId && (
-                            <a
-                              href={`${process.env.NEXT_PUBLIC_LMAO}${channelId}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="underline text-green-400 font-semibold"
+                            <span
+                              // href={`${process.env.NEXT_PUBLIC_LMAO}${channelId}`}
+                              // target="_blank"
+                              // rel="noopener noreferrer"
+                              className="text-green-400 font-semibold"
                             >
-                              LMAO
-                            </a>
+                              {channelId}
+                            </span>
                           )}
                         </div>
                       </div>

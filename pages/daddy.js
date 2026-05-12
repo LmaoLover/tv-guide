@@ -80,8 +80,8 @@ const mapCategoryToEmoji = (category) => {
     Fencing: "🤺",
     "England EFL Trophy/England League Cup/Scottish Premiership": "⚽",
     "All Soccer Events": "⚽",
-    "NHL": "🏒",
-    "WNBA": "🏀",
+    NHL: "🏒",
+    WNBA: "🏀",
     "Baseball (MLB)": "⚾",
   };
   return categoryToEmoji[category] || "";
@@ -197,7 +197,7 @@ export default function Index({ guide }) {
   };
 
   // Parse date from format like "Tuesday 11th March 2025 - Schedule Time UK GMT"
-  const parseFullUkDate = (dateStr) => {
+  const parseFullUkDateOld = (dateStr) => {
     // Extract the date components
     let day, month, year, weekdayName, dayOfMonth;
     // Standard usual date format
@@ -241,6 +241,73 @@ export default function Index({ guide }) {
       [, , day, month, year] = match;
       return new Date(`${month} ${day} ${year} 00:00 GMT`);
     }
+  };
+
+  // Parses various date formats like:
+  // "Tuesday 11th March 2025 - Schedule Time UK GMT"
+  // "Wednesday 15th Oct2025 - Schedule Time UK GMT"
+  // And the outlier format without a month.
+  const parseFullUkDate = (dateStr) => {
+    // Regex 1: Handles the standard format AND the new format with a missing space.
+    // The `\s?` makes the space between the month and year optional.
+    const standardFormatRegex = /(\w+)\s+(\d+)[a-z]{2}\s+(\w+)\s?(\d{4})/;
+    let match = dateStr.match(standardFormatRegex);
+
+    if (match) {
+      // This will successfully match:
+      // "Tuesday 11th March 2025" -> month="March", year="2025"
+      // "Wednesday 15th Oct2025"  -> month="Oct",   year="2025"
+      const [, , /* weekday */ day, month, year] = match;
+      // The `new Date()` constructor is smart enough to handle "March" and "Oct".
+      return new Date(`${month} ${day} ${year} 00:00 GMT`);
+    }
+
+    // Regex 2: Handles the annoying outlier format with no month.
+    // This only runs if the first, more specific regex fails.
+    const outlierFormatRegex = /(\w+)\s+(\d+)[a-z]{2}\s+(\d{4})/;
+    match = dateStr.match(outlierFormatRegex);
+
+    if (match) {
+      const [, weekdayName, dayOfMonth /* year */] = match;
+      const targetWeekday = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ].indexOf(weekdayName);
+      const targetDay = parseInt(dayOfMonth, 10);
+
+      // If we couldn't find the weekday, it's an invalid string.
+      if (targetWeekday === -1) return null;
+
+      // Get the current date in UTC to check against
+      let today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      // Check yesterday, today, and the next two days to find a matching date
+      // This logic assumes the date is very close to the present.
+      for (let offset = -1; offset <= 2; offset++) {
+        let testDate = new Date(today);
+        testDate.setUTCDate(testDate.getUTCDate() + offset);
+
+        if (
+          testDate.getUTCDay() === targetWeekday &&
+          testDate.getUTCDate() === targetDay
+        ) {
+          return testDate; // Found a match!
+        }
+      }
+
+      // If we looped and found no match, we can't determine the date.
+      return null;
+    }
+
+    // If neither regex matched, the format is completely unknown.
+    console.warn("Could not parse unknown date format:", dateStr);
+    return null;
   };
 
   const mergedData = useMemo(() => {
@@ -287,7 +354,6 @@ export default function Index({ guide }) {
             /DOUBLES/.test(event.event)
           )
             return null;
-
 
           const timeStr = event.time;
           const [hour, minute] = timeStr.split(":").map(Number);
@@ -515,7 +581,7 @@ const USER_AGENTS = [
 
 const CACHE_EXPIRY = 6 * 3600 * 1000; // 6 hour in milliseconds
 
-export async function getServerSideProps({ res }) {
+export async function getServerSidePropsOld({ res }) {
   let guide;
   try {
     const currentTime = Date.now();
@@ -559,6 +625,13 @@ export async function getServerSideProps({ res }) {
             };
             return data;
           })
+          .catch((error) => {
+            console.log(error);
+            if (error.name === "AbortError") {
+              console.log("Timeout occurred");
+            }
+            throw error;
+          })
           .finally(() => {
             // Clear the promise reference when done
             _currentFetchPromise = null;
@@ -578,5 +651,105 @@ export async function getServerSideProps({ res }) {
     props: {
       guide,
     },
+  };
+}
+
+import { Impit } from "impit";
+
+// Create one shared instance of Impit. This is efficient as it manages connection pools.
+const impit = new Impit({
+  // Use a Chrome profile for TLS impersonation. This is the key part.
+  browser: "chrome",
+});
+
+export async function getServerSideProps({ res }) {
+  let guide;
+  try {
+    const currentTime = Date.now();
+    const cacheAge = currentTime - _daddyCache.timestamp;
+    const cacheValid = _daddyCache.data !== null && cacheAge < CACHE_EXPIRY;
+
+    if (cacheValid) {
+      guide = _daddyCache.data;
+    } else {
+      if (_currentFetchPromise) {
+        guide = await _currentFetchPromise;
+      } else {
+        const fetchWithImpit = async () => {
+          try {
+            // console.log("Attempting fetch with the correct tool: Impit...");
+
+            // These are the perfect headers we discovered from your browser.
+            const browserHeaders = {
+              accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+              "accept-language": "en-US,en;q=0.8",
+              "cache-control": "no-cache",
+              pragma: "no-cache",
+              priority: "u=0, i",
+              referer: process.env.DADDY_API_REFERER, // Use your env variable
+              "sec-ch-ua":
+                '"Brave";v="141", "Not?A_Brand";v="8", "Chromium";v="141"',
+              "sec-ch-ua-mobile": "?0",
+              "sec-ch-ua-platform": '"Linux"',
+              "sec-fetch-dest": "document",
+              "sec-fetch-mode": "navigate",
+              "sec-fetch-site": "same-origin",
+              "sec-fetch-user": "?1",
+              "sec-gpc": "1",
+              "upgrade-insecure-requests": "1",
+              "user-agent":
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+            };
+
+            // Use the impit.fetch method. It mirrors the standard fetch API.
+            const response = await impit.fetch(process.env.DADDY_API_URL, {
+              headers: browserHeaders,
+              // Use a standard AbortSignal for timeouts
+              signal: AbortSignal.timeout(15000),
+            });
+
+            if (!response.ok) {
+              throw new Error(
+                `Fetch failed with status: ${response.status} ${response.statusText}`,
+              );
+            }
+
+            const data = await response.json();
+
+            _daddyCache = { data: data, timestamp: Date.now() };
+            // console.log("✅✅✅ SUCCESS! Impit bypassed the protection.");
+            return data;
+          } catch (error) {
+            // console.error("--- Impit fetch failed ---");
+            // Check if it's a timeout from our AbortSignal
+            if (error.name === "TimeoutError") {
+              console.error("Request timed out via AbortSignal.");
+            } else {
+              // Otherwise, log the underlying error, which might be ETIMEDOUT again
+              console.error(error.message);
+              console.error(error.cause);
+            }
+            throw error;
+          } finally {
+            _currentFetchPromise = null;
+          }
+        };
+
+        _currentFetchPromise = fetchWithImpit();
+        guide = await _currentFetchPromise;
+      }
+    }
+
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=600");
+  } catch (error) {
+    console.log(
+      "An error occurred in getServerSideProps, setting guide to null.",
+    );
+    guide = null;
+  }
+
+  return {
+    props: { guide },
   };
 }
